@@ -94,37 +94,37 @@ findBook({id: 1}).then(console.log)
 ```
 > 查询表达式, 以数组的形式可以支持更复杂的查询 
 ```javascript
-// SELECT * FROM az_book WHERE `id` = 1 ORDER BY id DESC LIMIT 1
+// 等于 => SELECT * FROM az_book WHERE `id` = 1 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.EQ, 1]})
 
-// SELECT * FROM az_book WHERE `id` <> 1 ORDER BY id DESC LIMIT 1
+// 不等于 => SELECT * FROM az_book WHERE `id` <> 1 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.NEQ, 1]})
 
-// SELECT * FROM az_book WHERE `id` > 1 ORDER BY id DESC LIMIT 1
+// 大于 => SELECT * FROM az_book WHERE `id` > 1 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.GT, 1]})
 
-// SELECT * FROM az_book WHERE `id` >= 1 ORDER BY id DESC LIMIT 1
+// 大于等于 => SELECT * FROM az_book WHERE `id` >= 1 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.EGT, 1]})
 
-// SELECT * FROM az_book WHERE `id` < 2 ORDER BY id DESC LIMIT 1
+// 小于 => SELECT * FROM az_book WHERE `id` < 2 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.LT, 1]})
 
-// SELECT * FROM az_book WHERE `id` <= 2 ORDER BY id DESC LIMIT 1
+// 小于等于 => SELECT * FROM az_book WHERE `id` <= 2 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.ELT, 1]})
 
-// SELECT * FROM az_book WHERE `title` LIKE '%乐园%' ORDER BY id DESC LIMIT 1
+// 模糊查询 => SELECT * FROM az_book WHERE `title` LIKE '%乐园%' ORDER BY id DESC LIMIT 1
 findBook({title: [opEnum.LIKE, '%乐园%']})
 
-// SELECT * FROM az_book WHERE `id` BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
+// 区间查询 => SELECT * FROM az_book WHERE `id` BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.BETWEEN, [1,9]]})
 
-// SELECT * FROM az_book WHERE `id` NOT BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
+// 不在区间内查询 => SELECT * FROM az_book WHERE `id` NOT BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.NOT_BETWEEN, [1,9]]})
 
-// SELECT * FROM az_book WHERE `id` IN (1,2,3) ORDER BY id DESC LIMIT 1
+// in查询 SELECT * FROM az_book WHERE `id` IN (1,2,3) ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.IN, [1, 2, 3]]})
 
-// SELECT * FROM az_book WHERE `id` NOT IN (1,2,3) ORDER BY id DESC LIMIT 1
+// 非in查询 SELECT * FROM az_book WHERE `id` NOT IN (1,2,3) ORDER BY id DESC LIMIT 1
 findBook({id: [opEnum.NOT_IN, [1, 2, 3]]})
 ```
 > OR 查询
