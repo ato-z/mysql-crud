@@ -70,6 +70,8 @@ const tableBook = spotTable('book', { // 第二个参数是可以缺省的
 
 /**
  * R方法 根据spotTable去进行查询，通过返回数组的两个句柄函数。实现查询单条或者多条
+ * findBook   查询单条数据，返回对象。空为null
+ * filterBook 查询多条数据，返回数组。空为null
  */
 const [findBook, filterBook] = R(tableBook)
 
