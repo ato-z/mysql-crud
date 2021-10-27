@@ -29,7 +29,7 @@ mysql> SELECT * FROM az_image;
 
 ### 链接数据库
 ```javascript
-const {initDb} = require('mysql-crud')
+const {initDb, opEnum} = require('mysql-crud')
 
 /**
  * initDb 初始化数据库，这时候不会去进行数据库链接。
@@ -76,8 +76,8 @@ const [findBook, filterBook] = R(tableBook)
 ```
 > findBook即单条查询，为空返回null，不为空返回一个对象
 ```javascript
-
-findBook({id: 1}).then(console.log) 
+// 查找id为1的数据
+findBook({id: 1}).then(console.log)
 /*
 生成的Sql语句 => SELECT * FROM az_book WHERE `id` = 1 ORDER BY id DESC LIMIT 1
 结果：{
@@ -88,5 +88,119 @@ findBook({id: 1}).then(console.log)
   create_date: 2021-10-27T08:01:21.000Z,
   delete_date: null
 }
+*/
+
+
+```
+> 查询表达式, 以数组的形式可以支持更复杂的查询 
+```javascript
+// SELECT * FROM az_book WHERE `id` = 1 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.EQ, 1]})
+
+// SELECT * FROM az_book WHERE `id` <> 1 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.NEQ, 1]})
+
+// SELECT * FROM az_book WHERE `id` > 1 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.GT, 1]})
+
+// SELECT * FROM az_book WHERE `id` >= 1 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.EGT, 1]})
+
+// SELECT * FROM az_book WHERE `id` < 2 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.LT, 1]})
+
+// SELECT * FROM az_book WHERE `id` <= 2 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.ELT, 1]})
+
+// SELECT * FROM az_book WHERE `title` LIKE '%乐园%' ORDER BY id DESC LIMIT 1
+findBook({title: [opEnum.LIKE, '%乐园%']})
+
+// SELECT * FROM az_book WHERE `id` BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.BETWEEN, [1,9]]})
+
+// SELECT * FROM az_book WHERE `id` NOT BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.NOT_BETWEEN, [1,9]]})
+
+// SELECT * FROM az_book WHERE `id` IN (1,2,3) ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.IN, [1, 2, 3]]})
+
+// SELECT * FROM az_book WHERE `id` NOT IN (1,2,3) ORDER BY id DESC LIMIT 1
+findBook({id: [opEnum.NOT_IN, [1, 2, 3]]})
+```
+> OR 查询
+```javascript
+const whereAnd = {
+    id: 4
+}
+const whereOr = {
+  author: '林奕含'
+}
+/**
+ * 查看id不等于1或者author为 林奕含 的数据
+ */
+findBook(whereAnd, whereOr).then(console.log) 
+/*
+sql: SELECT * FROM az_book WHERE (`id` = 4) OR (`author` = '林奕含') ORDER BY id DESC LIMIT 1
+结果：{
+  id: 1,
+  title: '房思琪的初恋乐园',
+  des: '令人心碎却无能为力的真实故事。',
+  author: '林奕含',
+  create_date: 2021-10-27T08:01:21.000Z,
+  delete_date: null
+}
+*/
+```
+
+> 查询多条
+```javascript
+const whereAnd = {delete_time: null}
+const whereOr = null
+const limit1 = 2 // 取2条数据
+const limit2 = [1, 2] // 从下标为1的数据开始取出2条，一般用于分页
+
+// 取2条
+filterBook(whereAnd, whereOr, limit1).then(console.log)
+/* sql: SELECT * FROM az_book WHERE `delete_date` IS NULL ORDER BY id DESC LIMIT 2
+结果: [
+  {
+    id: 3,
+    title: '追风筝的人',
+    des: '12岁的阿富汗富家少爷阿米尔与仆人哈桑情同手足。然而...',
+    author: '卡勒德·胡赛尼',
+    create_date: 2021-10-27T08:02:00.000Z,
+    delete_date: null
+  },
+  {
+    id: 2,
+    title: '白夜行',
+    des: '东野圭吾万千书迷心中的无冕之王\r\n',
+    author: '东野圭吾',
+    create_date: 2021-10-27T08:01:33.000Z,
+    delete_date: null
+  }
+]
+*/
+filterBook(whereAnd, whereOr, limit2).then(console.log)
+/*
+sql: SELECT * FROM az_book WHERE `delete_date` IS NULL ORDER BY id DESC LIMIT 1,2
+结果：[
+  {
+    id: 2,
+    title: '白夜行',
+    des: '东野圭吾万千书迷心中的无冕之王\r\n',
+    author: '东野圭吾',
+    create_date: 2021-10-27T08:01:33.000Z,
+    delete_date: null
+  },
+  {
+    id: 1,
+    title: '房思琪的初恋乐园',
+    des: '令人心碎却无能为力的真实故事。',
+    author: '林奕含',
+    create_date: 2021-10-27T08:01:21.000Z,
+    delete_date: null
+  }
+]
 */
 ```
