@@ -1,11 +1,31 @@
 {
   "name": "mysql-curd",
   "version": "1.0.0",
-  "description": "",
+  "description": "基于 mysql2 二次封装的增删改查。以高阶函数的方式进行提取，并提供了 获取器 设置器 等...",
   "main": "index.js",
-  "scripts": {},
-  "author": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ato-z/mysql-crud.git"
+  },
+  "keywords": [
+    "mysql",
+    "curl",
+    "高阶函数",
+    "promise",
+    "获取器",
+    "设置器",
+    "getAttr",
+    "setAttr"
+  ],
+  "author": "atoz",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ato-z/mysql-crud/issues"
+  },
+  "homepage": "https://github.com/ato-z/mysql-crud#readme",
   "dependencies": {
     "mysql2": "^2.3.2"
   }
