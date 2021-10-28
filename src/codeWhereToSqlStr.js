@@ -22,6 +22,7 @@ const codeOpValue = (op, value) => {
     } else if (op === opEnum.BETWEEN || op === opEnum.NOT_BETWEEN) {// 区间查询 => BETWEEN 1 AND 9 || NOT BETWEEN 1 AND 9
         value = value.slice(0, 2).join(' AND ')
     } else if (typeof value === 'string') { // 如果是字符串，加上单引号
+        value = value.replace(/\-/gm, '\\-') // 防止注入
         value = "'" + value.replace(/\'/g, "\\'") + "'"
     }
     return [op, value]
@@ -36,7 +37,6 @@ const codeOpValue = (op, value) => {
  const codeWhereToSqlStr = (where, joinStr = ' AND ') => {
     const lis = Object.entries(where)
     return lis.map(li => {
-        
         const key = '`'+li[0]+'`'
         let value = li[1]
         let operative = opEnum.EQ
