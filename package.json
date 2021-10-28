@@ -1,0 +1,12 @@
+{
+  "name": "mysql-curd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mysql2": "^2.3.2"
+  }
+}
