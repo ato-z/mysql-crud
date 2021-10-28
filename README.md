@@ -343,7 +343,7 @@ sql: DELETE FROM  `az_book` WHERE `title` = '新增标题' ORDER BY id DESC LIMI
 */
 ```
 
-> 获取器。可以对返回的数据进行一次处理，还能进行联表查询
+### 获取器。可以对返回的数据进行一次处理，还能进行联表查询
 ```javascript
 const tableImage = spotTable('image', {
     // 过滤返回对象的字段
