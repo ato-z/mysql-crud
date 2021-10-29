@@ -1,4 +1,4 @@
-# mysql-crud
+# mysql-curd
 基于 mysql2 二次封装的增删改查。以高阶函数的方式进行提取，并提供了 获取器 设置器 等...
 
 ## book表
@@ -29,7 +29,7 @@ mysql> SELECT * FROM az_image;
 
 ### 链接数据库
 ```javascript
-const {initDb, opEnum} = require('mysql-crud')
+const {initDb, opEnum} = require('mysql-curd')
 
 /**
  * initDb 初始化数据库，这时候不会去进行数据库链接。
@@ -117,7 +117,7 @@ findBook({id: 1}).then(console.log)
     使用 conjunctiveR 方法，最终只会发起一次查询
     SELECT * FROM az_book WHERE `id` IN (1,2,3,4,5,6,7,8,9,10) ORDER BY id DESC LIMIT 10  
   */
-  const {conjunctiveR} = require('mysql-crud')
+  const {conjunctiveR} = require('mysql-curd')
   for (let i = 1, count = 10; i <= count; i++) {
     conjunctiveR(findBook, {id: i}).then(console.log)
   }
@@ -166,7 +166,7 @@ const whereOr = {
   author: '林奕含'
 }
 /**
- * 查看id不等于1或者author为 林奕含 的数据
+ * 查看id等于4或者author为 林奕含 的数据
  */
 findBook(whereAnd, whereOr).then(console.log) 
 /*
