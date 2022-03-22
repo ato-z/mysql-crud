@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+
+        "outDir": "./dist/",
+
+        "moduleResolution": "Node"
+    },
+    "include": ["src/*", "src/*/*/*"]
+}

@@ -1,39 +1,85 @@
-# mysql-curd
-基于 mysql2 二次封装的增删改查。以高阶函数的方式进行提取，并提供了 获取器 设置器 等...
+<h1 align="center">mysql-curd</h1>
+<p align="center">
+    <a href=".">
+        <img src="https://img.shields.io/badge/Node-6.0.0%2B-green" alt="node-6+">
+    </a>
+    <a>
+        <img src="https://img.shields.io/badge/mysql2-%5E2.3.3-yellowgreen" alt="mysql2" />
+    </a>
+    <a href=".">
+        <img src="https://img.shields.io/badge/yarn-v1.22.17-blue" alt="yarn">
+    </a>
+    <a href=".">
+        <img src="https://img.shields.io/badge/LANG-TS-brightgreen" alt="lang:ts">
+    </a>
+</p>
 
-## book表
-```sql
-mysql> SELECT * FROM az_book;
-+----+-------+----------------+-------------------------------------------------+----------------------+---------------------+-------------+
-| id | cover |  title          | des                                             | author               | create_date         | delete_date |
-+----+-------+----------------+-------------------------------------------------+----------------------+---------------------+-------------+
-|  1 |     1 | 房思琪的初恋乐园  | 令人心碎却无能为力的真实故事。                       | 林奕含                | 2021-10-27 16:01:21  | NULL        |
-|  2 |     2 | 白夜行          | 东野圭吾万千书迷心中的无冕之王                       | 东野圭吾              | 2021-10-27 16:01:33  | NULL        |
-|  3 |     3 | 追风筝的人       | 12岁的阿富汗富家少爷阿米尔与仆人哈桑情同手足。然而...   | 卡勒德·胡赛尼          | 2021-10-27 16:02:00  | NULL        |
-+----+-------+----------------+-------------------------------------------------+----------------------+---------------------+-------------+
-3 rows in set (0.00 sec)
+* 适用于前端开发人员进行的mysql数据库读写， 以函数式的方式来调用。
+
+* 目前已实现了增删查改/获取器/设置器
+
+* 支持仅输出sql语句方便调试
+
+* 文档写得丑陋，建议直接看ts提示
+
+
+## 准备工作
+** 使用npm或yarn安装 **
+1. npm切换阿里镜像源
+```sh
+npm config set registry https://registry.nlark.com
 ```
 
-## image表
-```sql
-mysql> SELECT * FROM az_image;
-+----+--------------------------------------------------------------+-------+--------+---------------------+------+
-| id | path                                                         | width | height | create_date         | from |
-+----+--------------------------------------------------------------+-------+--------+---------------------+------+
-|  1 | view/subject/s/public/s29651121.jpg                          |   135 |    195 | 2021-10-27 15:57:11 | 1    |
-|  2 | view/subject/s/public/s24514468.jpg                          |   135 |    195 | 2021-10-27 15:57:13 | 1    |
-|  3 | https://img3.doubanio.com/view/subject/s/public/s1727290.jpg |   135 |    195 | 2021-10-27 15:57:15 | 0    |
-+----+--------------------------------------------------------------+-------+--------+---------------------+------+
-3 rows in set (0.00 sec)
+2. 使用 npm
+```sh
+npm install mysql-curd
 ```
 
-### 链接数据库
-```javascript
-const {initDb, opEnum} = require('mysql-curd')
+3. yarn 安装
+```sh
+yarn add mysql-curd
+```
+## 目录
+> 
+> [开始使用](#开始使用)
+> - [初始化数据库](#初始化数据库)
+> - [定位表](#定位表)
+> - [R 查询](#r-查询)
+> - [where条件](#where条件)
+>   - [一个简单查询](#一个简单查询)
+>     - [OP.EQ 等于](#opeq-等于)
+>     - [OP.NEQ 不等于](#opneq-不等于)
+>     - [OP.GT 大于](#opgt-大于)
+>     - [OP.EGT 大于](#opegt-大于)
+>     - [OP.LT 小于](#oplt-小于)
+>     - [OP.ELT 小于等于](#opelt-小于等于)
+>     - [OP.LIKE 模糊查询](#oplike-模糊查询)
+>     - [OP.BETWEEN 区间查询](#opbetween-区间查询)
+>     - [OP.NOT_BETWEEN 区间查询](#opnot_between-区间查询)
+>     - [OP.IN in查询](#opin-in查询)
+>     - [OP.NOT_IN not in查询](#opnot_in-not-in查询)
+>   - [复合查询](#复合查询)
+>     - [and条件](#and条件)
+>     - [or条件](#or条件)
+>     - [and 与 or 组合使用](#and-与-or-组合使用)
+> - [orderby-排序](#orderby-排序)
+> - [limit 获取指定条目](#limit-获取指定条目)
+> - [C 新增](#c-新增)
+> - [U 更新数据](#u-更新数据)
+> - [删除数据](#删除数据)
+> - [getAttr 获取器](#getattr-获取器)
+>   - [连表查询](#连表查询)
+> - [setAttr 设置器](#setattr-设置器)
+> - [自订SQL执行](#自订sql执行)
+
+## 开始使用
+### 初始化数据库
+initDb 初始化数据库，这时候不会去进行数据库链接。只有进行表操作的时候才会进行数据库链接
+```typescript
+import {initDb} from 'mysql-curd'
 
 /**
- * initDb 初始化数据库，这时候不会去进行数据库链接。
- * 只有进行表操作的时候才会进行数据库链接
+ * 链接配置
  */
 const db = initDb({
     // 数据库地址
@@ -55,420 +101,485 @@ const db = initDb({
 })
 ```
 
-### 查询
-```javascript
-const {spotTable, R} = db
+### 定位表
+在进行增删查改之前，需要定位到具体的某一个张表。用于后续的数据库操作。
+spotTable方法 会从初始化好的数据库中定位到指定表。并不会执行sql操作。
+```typescript
 /**
- * spotTable方法 会从初始化好的数据库中定位到指定表。并不会发生sql操作
  * @param {string} tableName 表名，如果初始化数据库传入了表前缀会加上表前缀。 book => az_book
  * @param {object} prop      可缺省的表辅助操作对象
  */
 const tableBook = spotTable('book', { // 第二个参数是可以缺省的
     field: ['*'], // 对查询语句的字段嗮选， 可缺省
-    order: ['id DESC'], // 查询结果根据id进行倒序， 可缺省
 })
 
-/**
- * R方法 根据spotTable去进行查询，通过返回数组的两个句柄函数。实现查询单条或者多条
- * @param {object} tableObj spotTable返回值
- * @returns [findBook 查询单条数据，返回对象。空为null, filterBook 查询多条数据，返回数组。空为null]
- */
-const [findBook, filterBook] = R(tableBook)
-
 ```
 
-> findBook即单条查询，为空返回null，不为空返回一个对象
-```javascript
-// 查找id为1的数据
-findBook({id: 1}).then(console.log)
-/*
-生成的Sql语句 => SELECT * FROM az_book WHERE `id` = 1 ORDER BY id DESC LIMIT 1
-结果：{
-  id: 1,
-  cover:1,
-  title: '房思琪的初恋乐园',
-  des: '令人心碎却无能为力的真实故事。',
-  author: '林奕含',
-  create_date: 2021-10-27T08:01:21.000Z,
-  delete_date: null
+### R 查询
+查询操作是最基本的，查询方法同样适用于更新与删除。 <br />
+R函数接受 spotTable 的结果，返回一个查询spotTable定位表的函数。
+```typescript
+import {SELECT} from 'mysql-curd'
+const {R} = db
+const qusetBookList = R(tableBook)
+
+// 查询所有
+qusetBookList().then(list => {
+    //  如果为空返回 null
+    if (list !== null) {
+        // 反之返回列表数据
+        console.log('bookList', list)
+    }
+})
+
+// 输出查询的sql语句
+const field = '*' // 所有字段
+const tableName = 'az_book' // 表名
+
+console.log(SELECT(field, tableName)) // SELECT * FROM az_book
+```
+
+### where条件
+查询条件可以是复杂的，可以是用and查询或or查询
+#### 一个简单查询
+```typescript
+// 查询id等于1的书本数据
+const where = {
+    and: {
+        id: 1
+    }
 }
-*/
+qusetBookList(where).then(list => {
+    //  如果为空返回 null
+    if (list !== null) {
+        // 反之返回列表数据
+        console.log('book', list[0])
+    }
+})
 ```
-> 聚合查询
-```javascript
-  /*
-    在for循环中将发起10次查询
-    SELECT * FROM az_book WHERE `id` = 1 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 2 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 3 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 4 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 5 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 6 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 7 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 8 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 9 ORDER BY id DESC LIMIT 1
-    SELECT * FROM az_book WHERE `id` = 10 ORDER BY id DESC LIMIT 1
-  */
-  for (let i = 1, count = 10; i <= count; i++) {
-    findBook({id: i}).then(console.log)
-  }
-
-  /* 
-    使用 conjunctiveR 方法，最终只会发起一次查询
-    SELECT * FROM az_book WHERE `id` IN (1,2,3,4,5,6,7,8,9,10) ORDER BY id DESC LIMIT 10  
-  */
-  const {conjunctiveR} = require('mysql-curd')
-  for (let i = 1, count = 10; i <= count; i++) {
-    conjunctiveR(findBook, {id: i}).then(console.log)
-  }
-```
-> 查询表达式, 以数组的形式可以支持更复杂的查询 
-```javascript
-// 等于 => SELECT * FROM az_book WHERE `id` = 1 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.EQ, 1]})
-
-// 不等于 => SELECT * FROM az_book WHERE `id` <> 1 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.NEQ, 1]})
-
-// 大于 => SELECT * FROM az_book WHERE `id` > 1 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.GT, 1]})
-
-// 大于等于 => SELECT * FROM az_book WHERE `id` >= 1 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.EGT, 1]})
-
-// 小于 => SELECT * FROM az_book WHERE `id` < 2 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.LT, 1]})
-
-// 小于等于 => SELECT * FROM az_book WHERE `id` <= 2 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.ELT, 1]})
-
-// 模糊查询 => SELECT * FROM az_book WHERE `title` LIKE '%乐园%' ORDER BY id DESC LIMIT 1
-findBook({title: [opEnum.LIKE, '%乐园%']})
-
-// 区间查询 => SELECT * FROM az_book WHERE `id` BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.BETWEEN, [1,9]]})
-
-// 不在区间内查询 => SELECT * FROM az_book WHERE `id` NOT BETWEEN 1 AND 9 ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.NOT_BETWEEN, [1,9]]})
-
-// in查询 SELECT * FROM az_book WHERE `id` IN (1,2,3) ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.IN, [1, 2, 3]]})
-
-// 非in查询 SELECT * FROM az_book WHERE `id` NOT IN (1,2,3) ORDER BY id DESC LIMIT 1
-findBook({id: [opEnum.NOT_IN, [1, 2, 3]]})
-```
-> OR 查询
-```javascript
-const whereAnd = {
-    id: 4
+#### 使用操作符号
+##### OP.EQ 等于
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        id: [OP.EQ, 1]
+    }
 }
-const whereOr = {
-  author: '林奕含'
-}
-/**
- * 查看id等于4或者author为 林奕含 的数据
- */
-findBook(whereAnd, whereOr).then(console.log) 
-/*
-sql: SELECT * FROM az_book WHERE (`id` = 4) OR (`author` = '林奕含') ORDER BY id DESC LIMIT 1
-结果：{
-  id: 1,
-  cover:1,
-  title: '房思琪的初恋乐园',
-  des: '令人心碎却无能为力的真实故事。',
-  author: '林奕含',
-  create_date: 2021-10-27T08:01:21.000Z,
-  delete_date: null
-}
-*/
+qusetBookList(where).then(console.log)
 ```
 
+##### OP.NEQ 不等于
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        id: [OP.NEQ, 1]
+    }
+}
+qusetBookList(where).then(console.log)
+```
 
-> 查询多条
-```javascript
-const whereAnd = {delete_time: null}
-const whereOr = null
-const limit1 = 2 // 取2条数据
-const limit2 = [1, 2] // 从下标为1的数据开始取出2条，一般用于分页
+##### OP.GT 大于
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        id: [OP.GT, 1]
+    }
+}
+qusetBookList(where).then(console.log)
+```
 
-// 取2条
-filterBook(whereAnd, whereOr, limit1).then(console.log)
-/* sql: SELECT * FROM az_book WHERE `delete_date` IS NULL ORDER BY id DESC LIMIT 2
-结果: [
-  {
-    id: 3,
-    cover: 3,
-    title: '追风筝的人',
-    des: '12岁的阿富汗富家少爷阿米尔与仆人哈桑情同手足。然而...',
-    author: '卡勒德·胡赛尼',
-    create_date: 2021-10-27T08:02:00.000Z,
+##### OP.EGT 大于
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        id: [OP.EGT, 1]
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+##### OP.LT 小于
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        id: [OP.LT, 1]
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+##### OP.ELT 小于等于
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        id: [OP.ELT, 1]
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+##### OP.LIKE 模糊查询
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        title: [OP.LIKE, '%花园%']
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+##### OP.BETWEEN 区间查询
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        // 查询 id为 1～10之间对数据
+        id: [OP.BETWEEN, [1, 10]]
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+##### OP.NOT_BETWEEN 区间查询
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        // 查询 id不在 1～10之间对数据
+        id: [OP.NOT_BETWEEN, [1, 10]]
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+##### OP.IN in查询
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        // 查询id为1 3 5 7
+        id: [OP.IN, [1, 3, 5, 7]]
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+##### OP.NOT_IN not in查询
+```typescript
+import {OP} from 'mysql-curd'
+const where = {
+    and: {
+        // 查询id不为1 3 5 7
+        id: [OP.NOT_IN, [1, 3, 5, 7]]
+    }
+}
+qusetBookList(where).then(console.log)
+```
+
+#### 复合查询
+对于复杂的查询条件可以交叉使用 and 或 or 查询， 支持仅输出sql语句模式。
+##### and条件
+> and 须所有条件都满足
+```typescript
+import { SELECT, OP } from 'mysql-curd'
+// id为 1 3 5 7 9 且 delet_date 为 NULL的数据
+const field = '*'
+const tableName = 'az_book'
+const quest = {
+    id: [ OP.IN, [1, 3, 5, 7, 9] ],
     delete_date: null
-  },
-  {
-    id: 2,
-    cover: 2,
-    title: '白夜行',
-    des: '东野圭吾万千书迷心中的无冕之王\r\n',
-    author: '东野圭吾',
-    create_date: 2021-10-27T08:01:33.000Z,
+}
+const where = { and: quest }
+
+// 输出sql语句
+const sql = SELECT('az_book', '*', where)
+console.log(sql) // SELECT * FROM az_book WHERE `id` IN (1,3,5,7,9) AND `delete_date` IS NULL
+
+// 执行查询
+qusetBookList(where).then(console.log)
+```
+
+##### or条件
+> or 仅需满足任意一个条件
+```typescript
+import { SELECT, OP } from 'mysql-curd'
+// id为 1 3 5 7 9 或者 delet_date 为 NULL的数据
+const field = '*'
+const tableName = 'az_book'
+const quest = {
+    id: [ OP.IN, [1, 3, 5, 7, 9] ],
     delete_date: null
-  }
-]
-*/
-filterBook(whereAnd, whereOr, limit2).then(console.log)
-/*
-sql: SELECT * FROM az_book WHERE `delete_date` IS NULL ORDER BY id DESC LIMIT 1,2
-结果：[
-  {
-    id: 2,
-    cover: 2,
-    title: '白夜行',
-    des: '东野圭吾万千书迷心中的无冕之王\r\n',
-    author: '东野圭吾',
-    create_date: 2021-10-27T08:01:33.000Z,
-    delete_date: null
-  },
-  {
-    id: 1,
-    cover: 1,
+}
+const where = { or: quest }
+
+// 输出sql语句
+const sql = SELECT('az_book', '*', where)
+console.log(sql) // SELECT * FROM az_book WHERE `id` IN (1,3,5,7,9) OR `delete_date` IS NULL
+
+// 执行查询
+qusetBookList(where).then(console.log)
+```
+
+##### and 与 or 组合使用
+```typescript
+import { SELECT, OP } from 'mysql-curd'
+const field = '*'
+const tableName = 'az_book'
+const questAnd = {
+    delete_date: null,
+    cover: [OP.NEQ, null]
+}
+const questOr = {
+    title: [OP.LIKE, '%花园'],
+    id: [OP.GT, 5]
+}
+
+// (delete_date必须为null， cover不能为null)，且（title包含‘花园’二字 或者 id 大于 5）
+const where1 = {
+    and: questAnd,
+    or: questOr,
+    join: 'AND'
+}
+const sql = SELECT(field, tableName, where1)
+console.log(sql) // SELECT * FROM az_book WHERE (`delete_date` IS NULL AND `cover` IS NOT NULL) AND (`title` LIKE '%花园' OR `id` > 5)
+
+// 执行查询
+qusetBookList(where1).then(console.log)
+
+
+//(delete_date必须为null， cover不能为null)，或者（title包含‘花园’二字 或者 id 大于 5）
+const where2 = {
+    and: questAnd,
+    or: questOr,
+    join: 'OR'
+}
+const sql2 = SELECT(field, tableName, where1)
+console.log(sql2) // SELECT * FROM az_book WHERE (`delete_date` IS NULL AND `cover` IS NOT NULL) OR (`title` LIKE '%花园' OR `id` > 5)
+
+// 执行查询
+qusetBookList(where2).then(console.log)
+```
+
+### orderBy 排序
+```typescript
+// id 倒序
+qusetBookList({}, ['id', 'DESC']).then(console.log)
+
+// id 正序
+qusetBookList({}, ['id', 'ASC']).then(console.log)
+```
+
+### limit 获取指定条目
+```typescript
+// 获取5条
+qusetBookList({}, ['id', 'DESC'], 5).then(console.log)
+
+// 从第5条开始再获取5条
+qusetBookList({}, ['id', 'DESC']. [5,5]).then(console.log)
+```
+
+### C 新增
+新增数据允许新增一条或新增多条，当接受一个对象时新增一条。当接受数组时新增多条
+```typescript
+import { INSERT } from 'mysql-curd'
+const {C} = db
+// 新增数据用的函数
+const insertBook = C(tableBook)
+
+// 新增用的数据
+const data = {
     title: '房思琪的初恋乐园',
+    cover: 1,
     des: '令人心碎却无能为力的真实故事。',
     author: '林奕含',
-    create_date: 2021-10-27T08:01:21.000Z,
-    delete_date: null
-  }
-]
-*/
+    create_date: '2022-03-21 00:00:00'
+}
+
+// 打印sql
+console.log(INSERT('az_book', data)) // INSERT INTO `az_book` (`title`,`cover`,`des`,`author`,`create_date`) VALUES ('房思琪的初恋乐园',1,'令人心碎却无能为力的真实故事。','林奕含','2022-03-21 00:00:00')
+
+// 新增一条
+insertBook(data).then(console.log)
+
+// 新增多条
+insertBook([data, data, data]).then(console.log)
 ```
 
-### 新增数据
-```javascript
-const {C} = db
-/**
- * C方法 根据spotTable来添加数据，
- * @param {object} tableObj spotTable返回值
- * @param {array} inserFields 本次新增的字段
- * @returns  [insertBook添加单条数据, insertBookList 添加多条数据]
- */
-const inserFields =  ['cover', 'title', 'des', 'author', 'create_date']
-const [insertBook, insertBookList] = C(tableBook, inserFields)
-const saveData = {
-  title: '新增标题',
-  cover: 3,
-  des: '描述...',
-  author: '测试作者',
-  create_date: '2021-10-27 08:01:21',
-}
-insertBook(saveData).then(console.log)
-/*
-sql: INSERT INTO `az_book` (`title`,`des`,`author`,`create_date`) VALUES ('新增标题','描述...','测试作者','2021-10-27 08:01:21')
-结果： 
-ResultSetHeader {
-  fieldCount: 0,
-  affectedRows: 1, // 影响的条目
-  insertId: 4, // 插入的id
-  info: '',
-  serverStatus: 2,
-  warningStatus: 0
-}
-*/
-
-/* 上同 */
-insertBookList([saveData, saveData, saveData]).then(console.log)
-```
-
-### 修改数据
-```javascript
-/**
- * U方法 根据spotTable来更新数据
- * @param {object} tableObj spotTable返回值
- * @returns  [upBook批量更新数据]
- */
+### U 更新数据
+可根据where条件 order排序 limit来更新数据， limit只接受一个数字<b style="color: red">不接受数组</b>
+```typescript
+import { UPDATE } from 'mysql-curd'
 const {U} = db
-const [upBook] = U(tableBook)
-const upData = {
-  title: '更新后的标题',
+const updataBook = U(tableBook)
+
+// 更新的数据
+const updata = {
+    title: '新标题'
 }
-// and 的更新条件，同R查询是一样的
-const whereAnd = {
-  title: '新增标题'
+// 更新条件 可缺省
+const where = {
+    and: {
+        title: '房思琪的初恋乐园'
+    }
 }
-// or 的更新条件
-const whereOr = null
-// 更新的条目，同R的使用方式
-const limit = 3
-upBook(upData, whereAnd, whereOr, limit)
-/*
-sql: UPDATE  `az_book` SET `title` = '更新后的标题' WHERE `title` = '新增标题' ORDER BY id DESC LIMIT 3
-结果：ResultSetHeader {
-  fieldCount: 0,  
-  affectedRows: 3,
-  insertId: 0,
-  info: 'Rows matched: 3  Changed: 3  Warnings: 0',
-  serverStatus: 34,
-  warningStatus: 0,
-  changedRows: 3
-}
-*/
+// 排序 可缺省
+const order = ['id', 'DESC']
+// 条目 可缺省
+const limit = 2
+
+// 打印SQL
+console.log(UPDATE('az_book', update, where, order, limit)) // UPDATE az_book SET `title`='新标题' WHERE `title` = '房思琪的初恋乐园' ORDER BY id DESC LIMIT 2
+
+// 执行
+updataBook(update, where, order, limit).then(console.log)
 ```
 
 ### 删除数据
-```javascript
-/**
- * D方法 根据spotTable来更新数据
- * @param {object} tableObj spotTable返回值
- * @returns  [deleteBook删除数据]
- */
+可根据where条件 order排序 limit来删除数据， limit只接受一个数字<b style="color: red">不接受数组</b>。 一般项目里是不会删除数据的，只是打上标记软删除
+```typescript
+import { _DELETE } from 'mysql-curd'
 const {D} = db
-const [deleteBook] = D(tableBook)
-// and 的更新条件，同R查询是一样的
-const whereAnd = {
-  title: '新增标题'
+const delBook = U(tableBook)
+
+// 删除条件 可缺省
+const where = {
+    and: {
+        id: 1
+    }
 }
-// or 的更新条件
-const whereOr = null
-// 更新的条目，同R的使用方式
-const limit = 3
-deleteBook(whereAnd, whereOr, limit)
-/*
-sql: DELETE FROM  `az_book` WHERE `title` = '新增标题' ORDER BY id DESC LIMIT 3
-结果：ResultSetHeader {
-  fieldCount: 0,
-  affectedRows: 3,
-  insertId: 0,
-  info: '',
-  serverStatus: 34,
-  warningStatus: 0
-}
-*/
+// 排序 可缺省
+const order = ['id', 'DESC']
+// 条目 可缺省
+const limit = 2
+
+// 打印sql语句
+console.log(_DELETE('az_book', where, order, limit)) // DELETE FROM `az_book` WHERE `id` = 1 ORDER BY id DESC LIMIT 2
+
+// 执行
+delBook(where, order, limit).then(console.log)
 ```
 
-### 获取器。可以对返回的数据进行一次处理，还能进行联表查询
-```javascript
-const tableImage = spotTable('image', {
-    // 过滤返回对象的字段
-    hiddenAttr: ['width', 'height', 'from', 'create_date'],
-    // getAttr
+### getAttr 获取器
+获取器是查询结束时，对输出结果的处理。也可以在这里进行连表查询。
+> 在az_image表中，from为1证明不需要额外处理。form为2时需要拼接上一段域名地址。 az_image 表如图所示：  
+
+| id | path | from | create_date | delete_date |
+| :-----| :---- | :----: | :-- | --: |
+| 1 | https://img3.doubanio.com/view/subject/s/public/s29651121.jpg                           | 1    | 2022-03-21 00:00:00 | NULL        |
+| 2 | view/subject/s/public/s29651121.jpg                           | 2    | 2022-03-21 00:00:00 | NULL        |
+| 3 | view/subject/s/public/s29651121.jpg                           | 2    | 2022-03-21 00:00:00 | NULL        |
+| 4 | view/subject/s/public/s29651121.jpg                           | 2    | 2022-03-21 00:00:00 | NULL        |
+
+```typescript
+// 图片表
+const imageTable = spotTable('image', {
     getAttr: {
-        path: (val, data) => {
-            // 如果是 form 等于，表示存储在线上oss的
-            if (data.from == 1) {
-                return 'https://img3.doubanio.com/' + val
+        path (data, key, value) {
+            if (data.from == 2) {
+                return 'https://img3.doubanio.com/' + value
             }
-            // 其他不处理
-            return val
+            return value
         }
     }
 })
-const [findImg, filerImgs] = R(tableImage)
+const selectImg = R(imageTable)
 
-// 不传查询条件获取全部
-filerImgs().then(console.log)
-/*
-所有的path都被处理了
-[
-  {
-    id: 1,
-    path: 'https://img3.doubanio.com/view/subject/s/public/s29651121.jpg',
-  },
-  {
-    id: 2,
-    path: 'https://img3.doubanio.com/view/subject/s/public/s24514468.jpg',
-  },
-  {
-    id: 3,
-    path: 'https://img3.doubanio.com/view/subject/s/public/s1727290.jpg',
-  }
-]
-*/
-
-
-/* 联表查询  */
-const tableBook2 = spotTable('book', { // 第二个参数是可以缺省的
-    field: ['*'], // 对查询语句的字段嗮选， 可缺省
-    order: ['id DESC'], // 查询结果根据id进行倒序， 可缺省
-    getAttr: {
-        cover: (val, data) => {
-            // return findImg({id: val}) // 会一次性发起多次请求，不推荐 
-            return conjunctiveR(findImg, {id: val}) // findImg的多次查询会被conjunctiveR聚合成一次
-        }
-    }
-})
-const [findBook, filterBook] = R(tableBook2)
-findBook({delete_date: null}).then(console.log)
-/*
-{
-  id: 16,
-  cover: {
-    id: 3,
-    path: 'https://img3.doubanio.com/view/subject/s/public/s1727290.jpg'
-  },
-  title: '更新后的标题',
-  des: '描述...',
-  author: '测试作者',
-  create_date: 2021-10-28T08:23:41.000Z,
-  delete_date: null
-}
-*/
-```
-
-### 设置器
-```javascript
-const {C} = db
-// 准备image表的添加
-const [insertImg] = C(tableImage, ['path', 'from', 'width', 'height', 'create_date'])
-const tableBook3 = spotTable('book', {
-    setAttr: { // 如果拿到cover是一个路径，则先添加到 image表中
-        cover: (val, data) => {
-            const insertData = {
-                path: val,
-                from: 0,
-                width: 135,
-                height: 135,
-                create_date: ' 2021-10-27 07:57:15'
-            }
-            // 添加成功返回新增的id
-            return insertImg(insertData).then(result => result.insertId)
-        }
-    }
-})
-
-// 准备添加到 book表
-const [insertBook] = C(tableBook3, ['cover', 'title', 'des', 'author', 'create_date'])
-insertBook({
-    title: '新增标题',
-    cover: 'view/subject/s/public/s1727290.jpg',
-    des: '描述...',
-    author: '测试作者',
-    create_date: '2021-10-27 08:01:21',
+// 执行查询
+selectImg({
+    and: {delete_date: null}
 }).then(console.log)
-/*
-sql: INSERT INTO `az_image` (`path`,`from`,`width`,`height`,`create_date`) VALUES ('view/subject/s/public/s1727290.jpg',0,135,135,' 2021-10-27 07:57:15')
-拿到cover等于4 => INSERT INTO `az_book` (`cover`,`title`,`des`,`author`,`create_date`) VALUES (4,'新增标题','描述...','测试作者','2021-10-27 08:01:21')
-
-结果： ResultSetHeader {
-  fieldCount: 0,
-  affectedRows: 1,
-  insertId: 17,
-  info: '',
-  serverStatus: 2,
-  warningStatus: 0
-}
-*/
 ```
 
-### 生命周期
-```javascript
-/**
- * 可监听的类型
- * connection  监听数据库连接事件，数据库开始建立连接时发起
- * enqueue     监听连接池pool回调已排队等待可用连接时，pool将发出事件
- * release     监听释放事件， release当连接被释放回池时，pool将发出一个事件。在对连接执行所有释放活动后调用此方法，因此在事件发生时该连接将被列为空闲。
- * error       数据库操作发生异常时
- * select      每次发生查询时触发
- * insert      每次写入数据触发
- * update      每次更新数据触发
- * delete      每次删除数据触发
-*/
-db.lifetime.listener('insert', console.log)
+#### 连表查询
+> 下表为 book表 cover是图片表的外建，每次查询拿到结果时都从图片表查一次拿到path字段
+
+| id | cover | title | des | author | create_date | delete_date |
+| :-----| :---- | :---- | :-- | :-- | :-- | --: |
+|  1 |     1 | 房思琪的初恋乐园         | 令人心碎却无能为力的真实故事。                | 林奕含    | 2022-03-21 00:00:00 | NULL     |
+|  2 |     2 | 房思琪的初恋乐园         | 令人心碎却无能为力的真实故事。                | 林奕含    | 2022-03-21 00:00:00 | NULL     |
+|  3 |     3 | 房思琪的初恋乐园         | 令人心碎却无能为力的真实故事。                | 林奕含    | 2022-03-21 00:00:00 | NULL     |
+```typescript
+// 图片表
+const imageTable = spotTable('image', {
+    getAttr: {
+        path (data, key, value) {
+            if (data.from == 2) {
+                return 'https://img3.doubanio.com/' + value
+            }
+            return value
+        }
+    }
+})
+const selectImg = R(imageTable)
+
+// 书本表
+const bookTable = spotTable('book', {
+    getAttr: {
+        cover (data, key, value) {
+            return selectImg({
+                and: {id: value}
+            }).then(result => {
+                if (result === null) { return '默认图片地址' }
+                const img = result[0]
+                return img.path
+            })
+        }
+    }
+})
+const selectBook = R(bookTable)
+// 查询列表， 当查询时是一个列表这里会出现并发。请手动处理并发问题
+selectBook().then(console.log)
+```
+
+### setAttr 设置器
+设置器刚好和获取器相反，触发的时机为每次新增数据前会先调用一次 setAttr 内的方法
+```typescript
+// 图片表
+const imageTable = spotTable('image', {})
+const insertImg = C(imageTable)
+
+// 书本表
+const bookTable = spotTable('book', {
+    setAttr: {
+        cover: (data, key, value) => {
+            // 如果是一个图片id则不需要处理
+            if (typeof value === 'number') { return value }
+            
+            // 先添加到图片表再把新增id返回
+            return insertImg({
+                path: value,
+                from: 2,
+                create_date: '2022-03-21 00:00:00'
+            }).then(result => result.insertId)
+        }
+    }
+})
+const insertBook = C(bookTable)
+
+// 需要新增的数据
+const data = {
+    title: '房思琪的初恋乐园',
+    cover: 'view/subject/s/public/s29651121.jpg',
+    des: '令人心碎却无能为力的真实故事。',
+    author: '林奕含',
+    create_date: '2022-03-21 00:00:00'
+}
+insertBook(data).then(console.log)
+```
+
+### 自订SQL执行
+```typescript
+import { SELECT } from 'mysql-curd'
+const {SQLexecute} = db
+const sql = SELECT('*', 'az_book', {and: {delete_date: null}}, ['id', 'DESC'], [5, 5])
+
+// 执行
+SQLexecute(sql).then(console.log)
 ```
