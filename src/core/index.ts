@@ -1,10 +1,10 @@
-import { InitDbOption, SpotTableProp, SpotTableResult, WhereQuest } from "../tool/interface"
+import { InitDbOption, SpotTableProp, SpotTableResult } from "../tool/interface"
 import mysql2 from 'mysql2'
 import { buildC } from "./c"
 import { buildR } from "./r"
 import { buildU} from "./u"
 import { biuldD } from "./d"
-import { OP } from "../tool/opEnum"
+import sqlExecute from "./sql-execute"
 
 const defaultInitDbOption: InitDbOption = {
     // 数据库地址
@@ -86,5 +86,6 @@ export const initDb = (op: InitDbOption) => {
     const R = buildR(pool)
     const U = buildU(pool)
     const D = biuldD(pool)
-    return {spotTable, C, R, U, D, pool}
+    const SQLExecute = <T>(sql: string) => sqlExecute<T>(pool, sql) 
+    return {spotTable, C, R, U, D, pool, SQLExecute}
 }

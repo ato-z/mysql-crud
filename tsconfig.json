@@ -4,10 +4,20 @@
         "noImplicitThis": true,
         "strictNullChecks": true,
         "esModuleInterop": true,
+        "strict": true,
+        "noUnusedLocals": true,
+
 
         "outDir": "./dist/",
+        "declaration": true,
+        "declarationDir": "./dist/",
 
+        "typeRoots": ["./typings"],
+
+        "target": "esnext", // 编译目标
+        "module": "esnext", // 模块类型
         "moduleResolution": "Node"
     },
-    "include": ["src/*", "src/*/*/*"]
+    "include": ["src/*", "src/*/*"],
+    "exclude": ["node_modules", "./dist"]
 }
