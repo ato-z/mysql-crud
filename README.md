@@ -66,7 +66,7 @@ yarn add mysql-curd
 > - [limit 获取指定条目](#limit-获取指定条目)
 > - [C 新增](#c-新增)
 > - [U 更新数据](#u-更新数据)
-> - [删除数据](#删除数据)
+> - [D 删除数据](#d-删除数据)
 > - [getAttr 获取器](#getattr-获取器)
 >   - [连表查询](#连表查询)
 > - [setAttr 设置器](#setattr-设置器)
@@ -441,7 +441,7 @@ console.log(UPDATE('az_book', update, where, order, limit)) // UPDATE az_book SE
 updataBook(update, where, order, limit).then(console.log)
 ```
 
-### 删除数据
+### D 删除数据
 可根据where条件 order排序 limit来删除数据， limit只接受一个数字<b style="color: red">不接受数组</b>。 一般项目里是不会删除数据的，只是打上标记软删除
 ```typescript
 import { _DELETE } from 'mysql-curd'
