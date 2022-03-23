@@ -13,8 +13,8 @@
         "declaration": true,
         "declarationDir": "./dist/",
 
-        "target": "esnext",
-        "module": "esnext",
+        "target": "es2017",
+        "module": "CommonJS",
         "moduleResolution": "Node"
     },
     "include": ["src/*", "src/*/*"],

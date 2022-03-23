@@ -1,4 +1,7 @@
-export const OP = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OP = void 0;
+exports.OP = {
     EQ: '=',
     NEQ: '<>',
     GT: '>',

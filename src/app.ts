@@ -1,4 +1,4 @@
-import { initDb } from '../src/core/index'
+import { initDb } from './core/index'
 import { INSERT } from './core/c'
 import { _DELETE } from './core/d'
 import { SELECT } from './core/r'

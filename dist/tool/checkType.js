@@ -1,18 +1,27 @@
-export const isString = (target) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isObj = exports.isUndefined = exports.isNull = exports.isArr = exports.isNumber = exports.isString = void 0;
+const isString = (target) => {
     return typeof target === 'string';
 };
-export const isNumber = (target) => {
+exports.isString = isString;
+const isNumber = (target) => {
     return typeof target === 'number' && isNaN(target) === false;
 };
-export const isArr = (target) => {
+exports.isNumber = isNumber;
+const isArr = (target) => {
     return Array.isArray(target);
 };
-export const isNull = (target) => {
+exports.isArr = isArr;
+const isNull = (target) => {
     return target === null;
 };
-export const isUndefined = (target) => {
+exports.isNull = isNull;
+const isUndefined = (target) => {
     return target === undefined;
 };
-export const isObj = (target) => {
+exports.isUndefined = isUndefined;
+const isObj = (target) => {
     return Object.prototype.toString.call(target) === '[object Object]';
 };
+exports.isObj = isObj;

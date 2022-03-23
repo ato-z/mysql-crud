@@ -1,9 +1,15 @@
-import mysql2 from 'mysql2';
-import { buildC } from "./c";
-import { buildR } from "./r";
-import { buildU } from "./u";
-import { biuldD } from "./d";
-import sqlExecute from "./sql-execute";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.initDb = void 0;
+const mysql2_1 = __importDefault(require("mysql2"));
+const c_1 = require("./c");
+const r_1 = require("./r");
+const u_1 = require("./u");
+const d_1 = require("./d");
+const sql_execute_1 = __importDefault(require("./sql-execute"));
 const defaultInitDbOption = {
     // 数据库地址
     host: '',
@@ -37,10 +43,10 @@ const defaultInitDbOption = {
  *  R: 从当前数据库的表中查询
  * }
  */
-export const initDb = (op) => {
+const initDb = (op) => {
     const { host, user, port, password, database, connectionLimit, queueLimit, table_prefix } = Object.assign({}, defaultInitDbOption, op);
     // 创建连接池
-    const pool = mysql2.createPool({ host, user, password, port, database, connectionLimit, queueLimit });
+    const pool = mysql2_1.default.createPool({ host, user, password, port, database, connectionLimit, queueLimit });
     /**
      * 返回操作表信息
      * @param tableName
@@ -72,10 +78,11 @@ export const initDb = (op) => {
         }, prop);
         return result;
     };
-    const C = buildC(pool);
-    const R = buildR(pool);
-    const U = buildU(pool);
-    const D = biuldD(pool);
-    const SQLExecute = (sql) => sqlExecute(pool, sql);
+    const C = (0, c_1.buildC)(pool);
+    const R = (0, r_1.buildR)(pool);
+    const U = (0, u_1.buildU)(pool);
+    const D = (0, d_1.biuldD)(pool);
+    const SQLExecute = (sql) => (0, sql_execute_1.default)(pool, sql);
     return { spotTable, C, R, U, D, pool, SQLExecute };
 };
+exports.initDb = initDb;
