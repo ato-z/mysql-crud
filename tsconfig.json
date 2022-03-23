@@ -7,15 +7,14 @@
         "strict": true,
         "noUnusedLocals": true,
 
+        "types": ["node"],
 
         "outDir": "./dist/",
         "declaration": true,
         "declarationDir": "./dist/",
 
-        "typeRoots": ["./typings"],
-
-        "target": "esnext", // 编译目标
-        "module": "esnext", // 模块类型
+        "target": "esnext",
+        "module": "esnext",
         "moduleResolution": "Node"
     },
     "include": ["src/*", "src/*/*"],
