@@ -1,5 +1,5 @@
 import mysql2 from 'mysql2';
-import { AttrJob, SpotTableResult, WhereQuest, SQLSelectWhere } from '../tool/interface';
+import { AttrJob, SpotTableResult, WhereQuest, SQLReadSelectQuest } from '../tool/interface';
 /**
  * SELECT查询的前置语句
  * @param field
@@ -13,7 +13,7 @@ export declare const withSelectFrom: (field: string, tableName: string) => strin
  * @param order
  * @returns
  */
-export declare const withOrderBy: (orderAttr?: string | undefined, order?: "DESC" | "ASC" | undefined) => string | undefined;
+export declare const withOrderBy: (orderAttr?: string | undefined, order?: "ASC" | "DESC" | undefined) => string | undefined;
 /**
  * where条件组合
  * @param whereAnd
@@ -38,12 +38,10 @@ export declare const withLimit2: (limit?: number | undefined) => string | undefi
  * 组合select语句
  * @param field
  * @param tableName
- * @param where
- * @param groupBy
- * @param limit
+ * @param quest
  * @returns
  */
-export declare const SELECT: (field: string, tableName: string, where?: SQLSelectWhere | undefined, groupBy?: [string, "DESC" | "ASC"] | undefined, limit?: number | [number, number] | undefined) => string;
+export declare const SELECT: (field: string, tableName: string, quest?: SQLReadSelectQuest | undefined) => string;
 /**
  * 触发 AttrJob 返回一个 promise
  * @param data
@@ -63,4 +61,4 @@ export declare const codeResults: (results: any[], getAttr: AttrJob) => Promise<
  * @param pool
  * @returns
  */
-export declare const buildR: (pool: mysql2.Pool) => (spotTable: SpotTableResult) => (where?: SQLSelectWhere, order?: [string, "DESC" | "ASC"] | undefined, limit?: number | [number, number] | undefined) => Promise<any[] | null>;
+export declare const buildR: (pool: mysql2.Pool) => (spotTable: SpotTableResult) => (quest?: SQLReadSelectQuest) => Promise<any[] | null>;

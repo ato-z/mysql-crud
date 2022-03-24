@@ -1,6 +1,6 @@
 import mysql2 from 'mysql2'
 import { isArr, isNumber } from '../tool/checkType'
-import { AttrJob, SpotTableResult, WhereQuest, SQLSelectWhere } from '../tool/interface'
+import { AttrJob, SpotTableResult, WhereQuest, SQLReadSelectQuest } from '../tool/interface'
 import { parseWhereToString } from '../tool/whereToString'
 import SQLExecute from '../core/sql-execute'
 
@@ -74,29 +74,28 @@ export const withLimit2 = (limit?: number): string|undefined => {
  * 组合select语句
  * @param field 
  * @param tableName 
- * @param where 
- * @param groupBy 
- * @param limit 
+ * @param quest
  * @returns 
  */
 export const SELECT = (
     field: string,
     tableName: string,
-    where?: SQLSelectWhere,
-    groupBy?: [string, 'ASC'|'DESC'],
-    limit?: number|[number, number]
+    quest?: SQLReadSelectQuest
 ) => {
     // select –> where –> group by –>order by
     const selectFrom = withSelectFrom(field, tableName)
     const sqlContainer: Array<string> = [selectFrom]
-    const whereSql = withWhere(where?.and, where?.or, where?.join)
+    const whereSql = withWhere(quest?.and, quest?.or, quest?.join)
     if (whereSql !== undefined) { sqlContainer.push(whereSql) }
-    if (groupBy !== undefined) {
-        const groupSql = withOrderBy(groupBy[0], groupBy[1])
+    if (quest?.order !== undefined) {
+        const groupSql = withOrderBy(quest?.order[0], quest?.order[1])
         sqlContainer.push(groupSql as string) 
     }
-    const limitSql = withLimit(limit)
-    if (limitSql !== undefined) { sqlContainer.push(limitSql) }
+    if (quest?.limit !== undefined) {
+        const limitSql = withLimit(quest?.limit)
+        if (limitSql !== undefined) { sqlContainer.push(limitSql) }
+    }
+    
     return sqlContainer.join(' ')
 }
 
@@ -158,8 +157,8 @@ export const codeResults = (results: any[], getAttr: AttrJob): Promise<object[]>
 export const buildR = (pool: mysql2.Pool) => {
     const R = (spotTable: SpotTableResult) => {
         const {tableName, field, getAttr} = spotTable
-        const select = (where: SQLSelectWhere = {}, order?: [string, 'ASC'|'DESC'], limit?: number|[number, number]) => {
-            const sql = SELECT(field.toString(), tableName, where, order, limit)
+        const select = (quest: SQLReadSelectQuest = {}) => {
+            const sql = SELECT(field.toString(), tableName, quest)
             const promise = SQLExecute<any[]|null>(pool, sql)
             return promise.then(result => {
                 if (result === null) { return null }

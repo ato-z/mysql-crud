@@ -40,8 +40,8 @@ describe('parseWhereToString', () => {
     it('异常边界', () => {
         // 空值
         try {
-            const quest3 = { id: [OP.EQ, undefined] }
-            expect(null).toBe(new Error('空值异常'))
+            const quest3 = { id: [OP.EQ, null] }
+            expect(parseWhereToString(quest3)).toBe(new Error('空值异常'))
         } catch(err) {
             expect(err instanceof Error).toBe(true)
         }
@@ -49,7 +49,7 @@ describe('parseWhereToString', () => {
         // 不支持的操作符
         try {
             const quest3 = { id: ['等于', 1] }
-            expect(null).toBe(new Error('不支持的操作符异常'))
+            expect(parseWhereToString(quest3)).toBe(new Error('不支持的操作符异常'))
         } catch(err) {
             expect(err instanceof Error).toBe(true)
         }
@@ -57,7 +57,7 @@ describe('parseWhereToString', () => {
         // 使用eq来查询数组
         try {
             const quest3 = { id: [OP.EQ, [1, 2, 3]] }
-            expect(null).toBe(new Error('使用eq来查询数组异常'))
+            expect(parseWhereToString(quest3)).toBe(new Error('使用eq来查询数组异常'))
         } catch(err) {
             expect(err instanceof Error).toBe(true)
         }

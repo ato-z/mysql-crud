@@ -372,19 +372,19 @@ qusetBookList(where2).then(console.log)
 ### orderBy 排序
 ```typescript
 // id 倒序
-qusetBookList({}, ['id', 'DESC']).then(console.log)
+qusetBookList({order: ['id', 'DESC']}).then(console.log)
 
 // id 正序
-qusetBookList({}, ['id', 'ASC']).then(console.log)
+qusetBookList({order: ['id', 'ASC']}).then(console.log)
 ```
 
 ### limit 获取指定条目
 ```typescript
 // 获取5条
-qusetBookList({}, ['id', 'DESC'], 5).then(console.log)
+qusetBookList({limit: 5}).then(console.log)
 
 // 从第5条开始再获取5条
-qusetBookList({}, ['id', 'DESC']. [5,5]).then(console.log)
+qusetBookList({limit: [5,5]}).then(console.log)
 ```
 
 ### C 新增
@@ -425,22 +425,24 @@ const updataBook = U(tableBook)
 const updata = {
     title: '新标题'
 }
-// 更新条件 可缺省
-const where = {
-    and: {
-        title: '房思琪的初恋乐园'
-    }
-}
 // 排序 可缺省
 const order = ['id', 'DESC']
 // 条目 可缺省
 const limit = 2
+// 更新条件 可缺省
+const quest = {
+    and: {
+        title: '房思琪的初恋乐园'
+    },
+    order, limit
+}
+
 
 // 打印SQL
-console.log(UPDATE('az_book', update, where, order, limit)) // UPDATE az_book SET `title`='新标题' WHERE `title` = '房思琪的初恋乐园' ORDER BY id DESC LIMIT 2
+console.log(UPDATE('az_book', update, quest)) // UPDATE az_book SET `title`='新标题' WHERE `title` = '房思琪的初恋乐园' ORDER BY id DESC LIMIT 2
 
 // 执行
-updataBook(update, where, order, limit).then(console.log)
+updataBook(update, where).then(console.log)
 ```
 
 ### D 删除数据
@@ -449,23 +451,24 @@ updataBook(update, where, order, limit).then(console.log)
 import { _DELETE } from 'mysql-curd'
 const {D} = db
 const delBook = U(tableBook)
-
-// 删除条件 可缺省
-const where = {
-    and: {
-        id: 1
-    }
-}
 // 排序 可缺省
 const order = ['id', 'DESC']
 // 条目 可缺省
 const limit = 2
+// 删除条件 可缺省
+const quset = {
+    and: {
+        id: 1
+    },
+    order, limit
+}
+
 
 // 打印sql语句
-console.log(_DELETE('az_book', where, order, limit)) // DELETE FROM `az_book` WHERE `id` = 1 ORDER BY id DESC LIMIT 2
+console.log(_DELETE('az_book', quset)) // DELETE FROM `az_book` WHERE `id` = 1 ORDER BY id DESC LIMIT 2
 
 // 执行
-delBook(where, order, limit).then(console.log)
+delBook(quset).then(console.log)
 ```
 
 ### getAttr 获取器

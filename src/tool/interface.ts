@@ -36,8 +36,14 @@ export interface SpotTableResult extends SpotTableProp {
     tableName: string
 }
 
-export interface SQLSelectWhere{
+export interface SQLSelectQuest{
     and?: WhereQuest
     or?: WhereQuest
-    join?: 'AND'|"OR"
+    join?: 'AND'|"OR",
+    order?: [string, 'ASC'|'DESC'],
+    limit?: number
+}
+
+export interface SQLReadSelectQuest extends Pick<SQLSelectQuest, 'and'|'or'|'join'|'order'>{
+    limit?: number|[number, number]
 }

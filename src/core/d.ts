@@ -1,8 +1,7 @@
 import mysql2 from 'mysql2'
-import { SpotTableResult, SQLSelectWhere } from "../tool/interface";
+import { SpotTableResult, SQLSelectQuest } from "../tool/interface";
 import { withLimit2, withOrderBy, withWhere } from "./r";
 import sqlExecute from "./sql-execute";
-
 
 /**
  * DELETE 删除语句
@@ -13,28 +12,29 @@ const withDeleteFrom = (tableName: string): string => {
     return `DELETE FROM \`${tableName}\``
 }
 
-export const _DELETE = (tableName: string, where?: SQLSelectWhere, groupBy?: [string, 'ASC'|'DESC'], limit?: number): string => {
+export const _DELETE = (tableName: string, quest?: SQLSelectQuest): string => {
     const deleteFrom = withDeleteFrom(tableName)
     const sqlContainer = [deleteFrom]
-    const whereSql = withWhere(where?.and, where?.or, where?.join)
+    const whereSql = withWhere(quest?.and, quest?.or, quest?.join)
     if (whereSql !== undefined) { sqlContainer.push(whereSql) }
-
-    if (groupBy !== undefined) {
-        const groupSql = withOrderBy(groupBy[0], groupBy[1])
+    
+    if (quest?.order !== undefined) {
+        const groupSql = withOrderBy(quest?.order[0], quest?.order[1])
         sqlContainer.push(groupSql as string) 
     }
-
-    const limitSql = withLimit2(limit)
-    if (limitSql !== undefined) { sqlContainer.push(limitSql) }
-
+    if (quest?.limit !== undefined) {
+        const limitSql = withLimit2(quest?.limit)
+        if (limitSql !== undefined) { sqlContainer.push(limitSql) }
+    }
+   
     return sqlContainer.join(' ')
 }
 
 export const biuldD = (pool: mysql2.Pool) => {
     const D = (spotTable: SpotTableResult) => {
         const {tableName} = spotTable
-        const _delete = (where?: SQLSelectWhere, order?: [string, 'ASC'|'DESC'], limit?: number) => {
-            const sql = _DELETE(tableName, where, order, limit)
+        const _delete = (quest?: SQLSelectQuest) => {
+            const sql = _DELETE(tableName, quest)
             return sqlExecute<mysql2.ResultSetHeader>(pool, sql)
         }
         return _delete

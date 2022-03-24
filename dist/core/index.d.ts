@@ -18,9 +18,9 @@ import mysql2 from 'mysql2';
 export declare const initDb: (op: InitDbOption) => {
     spotTable: (tableName: string, prop?: Partial<SpotTableProp>, tablePrefix?: string) => Readonly<SpotTableResult>;
     C: (spotTable: SpotTableResult) => (datas: object | object[]) => Promise<mysql2.ResultSetHeader>;
-    R: (spotTable: SpotTableResult) => (where?: import("../tool/interface").SQLSelectWhere, order?: [string, "DESC" | "ASC"] | undefined, limit?: number | [number, number] | undefined) => Promise<any[] | null>;
-    U: (spotTable: SpotTableResult) => (updata: object, where?: import("../tool/interface").SQLSelectWhere | undefined, order?: [string, "DESC" | "ASC"] | undefined, limit?: number | undefined) => Promise<mysql2.ResultSetHeader>;
-    D: (spotTable: SpotTableResult) => (where?: import("../tool/interface").SQLSelectWhere | undefined, order?: [string, "DESC" | "ASC"] | undefined, limit?: number | undefined) => Promise<mysql2.ResultSetHeader>;
+    R: (spotTable: SpotTableResult) => (quest?: import("../tool/interface").SQLReadSelectQuest) => Promise<any[] | null>;
+    U: (spotTable: SpotTableResult) => (updata: object, query?: import("../tool/interface").SQLSelectQuest | undefined) => Promise<mysql2.ResultSetHeader>;
+    D: (spotTable: SpotTableResult) => (quest?: import("../tool/interface").SQLSelectQuest | undefined) => Promise<mysql2.ResultSetHeader>;
     pool: mysql2.Pool;
     SQLExecute: <T>(sql: string) => Promise<T>;
 };

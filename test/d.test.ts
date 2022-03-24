@@ -9,8 +9,10 @@ describe('删除数据', () => {
     it('删除单条', () => {
         // 删除最后一条
         deleteImg({
-            and: { delete_date: null }
-        }, ['id', 'DESC'], 1).then(result => {
+            and: { delete_date: null },
+            order: ['id', 'DESC'],
+            limit: 1
+        }).then(result => {
             expect('删除成功').toBe('删除成功')
         }).catch(err => {
             expect('删除成功').toBe('删除失败')

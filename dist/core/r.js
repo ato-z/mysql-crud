@@ -83,26 +83,26 @@ exports.withLimit2 = withLimit2;
  * 组合select语句
  * @param field
  * @param tableName
- * @param where
- * @param groupBy
- * @param limit
+ * @param quest
  * @returns
  */
-const SELECT = (field, tableName, where, groupBy, limit) => {
+const SELECT = (field, tableName, quest) => {
     // select –> where –> group by –>order by
     const selectFrom = (0, exports.withSelectFrom)(field, tableName);
     const sqlContainer = [selectFrom];
-    const whereSql = (0, exports.withWhere)(where === null || where === void 0 ? void 0 : where.and, where === null || where === void 0 ? void 0 : where.or, where === null || where === void 0 ? void 0 : where.join);
+    const whereSql = (0, exports.withWhere)(quest === null || quest === void 0 ? void 0 : quest.and, quest === null || quest === void 0 ? void 0 : quest.or, quest === null || quest === void 0 ? void 0 : quest.join);
     if (whereSql !== undefined) {
         sqlContainer.push(whereSql);
     }
-    if (groupBy !== undefined) {
-        const groupSql = (0, exports.withOrderBy)(groupBy[0], groupBy[1]);
+    if ((quest === null || quest === void 0 ? void 0 : quest.order) !== undefined) {
+        const groupSql = (0, exports.withOrderBy)(quest === null || quest === void 0 ? void 0 : quest.order[0], quest === null || quest === void 0 ? void 0 : quest.order[1]);
         sqlContainer.push(groupSql);
     }
-    const limitSql = (0, exports.withLimit)(limit);
-    if (limitSql !== undefined) {
-        sqlContainer.push(limitSql);
+    if ((quest === null || quest === void 0 ? void 0 : quest.limit) !== undefined) {
+        const limitSql = (0, exports.withLimit)(quest === null || quest === void 0 ? void 0 : quest.limit);
+        if (limitSql !== undefined) {
+            sqlContainer.push(limitSql);
+        }
     }
     return sqlContainer.join(' ');
 };
@@ -167,8 +167,8 @@ exports.codeResults = codeResults;
 const buildR = (pool) => {
     const R = (spotTable) => {
         const { tableName, field, getAttr } = spotTable;
-        const select = (where = {}, order, limit) => {
-            const sql = (0, exports.SELECT)(field.toString(), tableName, where, order, limit);
+        const select = (quest = {}) => {
+            const sql = (0, exports.SELECT)(field.toString(), tableName, quest);
             const promise = (0, sql_execute_1.default)(pool, sql);
             return promise.then(result => {
                 if (result === null) {

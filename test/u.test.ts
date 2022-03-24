@@ -16,7 +16,9 @@ describe('更新数据', () => {
         }, {
             and: {
                 from: 2
-            }
+            },
+            order: ['id', "DESC"],
+            limit: 1
         }).then(result => {
             expect('更新成功').toBe('更新成功')
         }).catch(err => {

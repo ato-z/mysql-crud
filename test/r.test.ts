@@ -94,22 +94,26 @@ describe("SELECT查询", () => {
     const result4 = 'SELECT * FROM az_room WHERE `delete_date` IS NULL ORDER BY id ASC'
     it('SELECT * FROM az_room WHERE `delete_date` IS NULL ORDER BY id ASC', () => {
         expect(SELECT(fields, tableName, {
-            and: {delete_date: null}
-        }, ['id', 'ASC'])).toBe(result4)
+            and: {delete_date: null},
+            order: ['id', 'ASC']
+        })).toBe(result4)
     })
 
     const result5 = 'SELECT * FROM az_room WHERE `delete_date` IS NULL ORDER BY id DESC'
     it('SELECT * FROM az_room WHERE `delete_date` IS NULL ORDER BY id DESC', () => {
         expect(SELECT(fields, tableName, {
-            and: {delete_date: null}
-        }, ['id', 'DESC'])).toBe(result5)
+            and: {delete_date: null},
+            order: ['id', 'DESC']
+        })).toBe(result5)
     })
 
     const result6 = 'SELECT * FROM az_room WHERE `delete_date` IS NULL ORDER BY id ASC LIMIT 0,8'
     it('SELECT * FROM az_room WHERE `delete_date` IS NULL ORDER BY id ASC LIMIT 0,8', () => {
         expect(SELECT(fields, tableName, {
-            and: {delete_date: null}
-        }, ['id', 'ASC'], 8)).toBe(result6)
+            and: {delete_date: null},
+            order: ['id', 'ASC'],
+            limit: 8
+        })).toBe(result6)
     })
 })
 
