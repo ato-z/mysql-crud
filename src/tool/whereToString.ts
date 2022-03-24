@@ -15,7 +15,7 @@ const checkoutOpVal = (op: string, val: QuestVal) => {
         }
     }
     if (op === OP.GT || op === OP.LT || op === OP.EGT || op === OP.ELT) {
-        if (isNumber(val) === false) {
+        if (isNumber(val) === false && isNaN(new Date(val as string).getTime())) {
             throw new Error(`${op} 运算符只支持类型：number`)
         }
     }

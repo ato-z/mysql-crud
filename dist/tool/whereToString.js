@@ -17,7 +17,7 @@ const checkoutOpVal = (op, val) => {
         }
     }
     if (op === opEnum_1.OP.GT || op === opEnum_1.OP.LT || op === opEnum_1.OP.EGT || op === opEnum_1.OP.ELT) {
-        if ((0, checkType_1.isNumber)(val) === false) {
+        if ((0, checkType_1.isNumber)(val) === false && isNaN(new Date(val).getTime())) {
             throw new Error(`${op} 运算符只支持类型：number`);
         }
     }
