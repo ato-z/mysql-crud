@@ -5,7 +5,7 @@
         "strictNullChecks": true,
         "esModuleInterop": true,
         "strict": true,
-        "noUnusedLocals": false, // 运行test单例设置为true， mysql2有闲置变量未使用
+        "noUnusedLocals": true, // 运行test单例设置为true， mysql2有闲置变量未使用
 
         "types": ["node", "jest"],
 
