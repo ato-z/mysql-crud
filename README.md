@@ -583,7 +583,7 @@ insertBook(data).then(console.log)
 ```typescript
 import { SELECT } from 'mysql-curd'
 const {SQLexecute} = db
-const sql = SELECT('*', 'az_book', {and: {delete_date: null}}, ['id', 'DESC'], [5, 5])
+const sql = SELECT('*', 'az_book', {and: {delete_date: null}})
 
 // 执行
 SQLexecute(sql).then(console.log)
