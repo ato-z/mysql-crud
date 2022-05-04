@@ -145,7 +145,7 @@ describe('链接数据库查询', () => {
         getAttr: {
             path (data, key, value) {
                 if (data.from == 2) {
-                    return 'https://img3.doubanio.com/' + value
+                    return Promise.resolve('https://img3.doubanio.com/' + value)
                 }
                 return value
             }
@@ -169,7 +169,7 @@ describe('链接数据库查询', () => {
             getAttr: {
                 cover (data, key, value) {
                     return selectImg({and: {id: value}}).then(list => {
-                        if (list === null) { return '暂无图像' }
+                        if (list === null) { return Promise.reject('') }
                         return list[0].path
                     })
                 }
